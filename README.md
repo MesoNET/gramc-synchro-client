@@ -42,6 +42,7 @@ You can run the "gramc\_synchro\_client.py" script with some environment variabl
 Project files
 -------------
 
+```
 gramc\_synchro\_client/
 ├── doc/
 │   └── json\_description.md
@@ -53,4 +54,4 @@ gramc\_synchro\_client/
 │   └── set\_slurm\_user.sh
 ├── readme.md
 └── gramc\_synchro\_client.py
-
+```
