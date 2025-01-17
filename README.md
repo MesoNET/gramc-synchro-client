@@ -38,6 +38,9 @@ Installation
 3. Configurez les variables de `gramc_synchro_client.ansible.yaml` pour les adapter à votre cluster
     1. Notamment, mettre le bon nom du cluster correspondant à celui dans la base de données de gramc
 4. Adapter les rôles à votre cas d'utilisation, par exemple changer comment les dossiers des projets sont générés dans `roles/users_folders/tasks/main.yaml`
+5. Vérifier que la liste d'utilisateurs récupérée est correcte avec les tags `all_portals,debug_filtered`
+6. Lancer la recette ansible pour vérifier son bon fonctionnement
+7. Éventuellement, ajouter `gramc_synchro_client.sh` au cron
 
 Ce que ce client fait
 ---------------------
@@ -51,7 +54,14 @@ Ce que ce client fait
     3. Ce client ajoute automatiquement les clés ssh publiques du portail dans `.ssh/authorized_keys` et en retire les clés révoquées
 4. Ce client crée les utilisateurs et projets dans la base de données Slurm
     1. **BUG À CORRIGER :** Ce client ne retire pas les associations Slurm utilisateur/account qui n'est plus dans le projet correspondant
+        1. Pour une correction temporaire, modifier le fichier `roles/populate_slurm/files/set_slurm_user.sh`
 5. Ce client envoie finalement les confirmations de créations aux portails
+
+Déboguage
+---------
+
+- Il est possible de lancer la recette ansible avec les tags `all_portals,debug_retreive`, `all_portals,debug_formated` ou `all_portals, debug_filtered` pour récupérer la liste des utilisateurs et de leurs clés et projets dans un fichier sous le dossier `local/`, afin de vérifier la liste des utilisateurs utilisée par la recette ansible
+    - L'utilisation de ces tags arrête le script avant la propagation des utilisateurs (mais peut modifier `local/usersdata.csv` en cas de nouvel utilisateur)
 
 Configuration optionnelle mais recommandée
 ------------------------------------------
