@@ -33,9 +33,6 @@
       vars:
         home_dir: '/home'
         no_remove_from_groups: false
-      tags:
-        - never
-        - nodes_users
 
 - hosts: localhost
   gather_facts: false
