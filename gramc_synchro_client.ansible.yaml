@@ -1,0 +1,67 @@
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  roles:
+    # Récupère les données des utilisateurs, de leurs clés ssh et de leurs projets depuis les portails
+    - role: retreive_portals_data
+      vars:
+        min_uid: 100000
+        max_uid: 199999
+        min_gid: 200000
+        max_gid: 299999
+        cluster_users_file: "./local/usersdata.csv"
+        already_deployed_users_file: "./local/sync_users_resfile.json"
+        cluster_name: Juliet
+#WIP
+#    - role: populate_ldap
+#      vars:
+#        server_uri: ""
+#        bind_dn: ""
+#        bind_pw: "{{ ldap_bind_pw }}"
+#        base_dn: ""
+#        groups_ou: "ou=groups"
+#        users_ou: "ou=users"
+#      tags:
+#        - never
+#        - ldap_users
+
+- hosts: logins,computes
+  gather_facts: false
+  roles:
+    # Crée les utilisateurs et projets sur tous les nœuds
+    - role: populate_nodes
+      vars:
+        home_dir: '/home'
+        no_remove_from_groups: false
+      tags:
+        - never
+        - nodes_users
+
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  roles:
+    # Crée les dossiers des utilisateurs et leur contenu dans les stockages partagés
+    - role: users_folders
+      vars:
+        home_dir: '/home'
+        projects_dir: '/project'
+        skel_dir: '/etc/skel'
+    # Crée les utilisateurs et leurs projets dans la base de données Slurm
+    - role: populate_slurm
+    # Envoie les confirmations de création aux portails
+    - role: send_portals_confirmations
+      vars:
+        # Utilisé pour construire le `loginname` de l'API
+        cluster_name: Juliet
+
+# May be removed at long term when the mesonet portal will acknowledge a single username for multiple projects
+# In the meantime, allow the play to run faster
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  tasks:
+    - name: Save validated users
+      ansible.builtin.copy:
+        content: "{\"users\":{{ hostvars.localhost.users_and_projects.users }},\"projects\":{{ hostvars.localhost.users_and_projects.projects }}}"
+        dest: "./local/sync_users_resfile.json"

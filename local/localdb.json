@@ -1,0 +1,28 @@
+[
+	{
+		"portal": "local",
+		"email": "example@example.fr",
+		"id": 0,
+		"username": "nologin",
+		"preferred": "example",
+		"password": null,
+		"report": false,
+		"delete": false,
+		"projects": [
+			{
+				"id": null,
+				"name": "example_project",
+				"report": false
+			}
+		],
+		"sshkeys": [
+			{
+				"name": "test",
+				"id": 0,
+				"rvk": false,
+				"report": false,
+				"pub": "ssh-ed25519 AAAAexamplekey example@example"
+			}
+		]
+	}
+]

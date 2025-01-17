@@ -1,0 +1,107 @@
+# ------------------------------------------ #
+#  Retreive data from portals and databases  #
+# ------------------------------------------ #
+
+# You can add custom sources of data by adding a python module in the `library/`
+# folder of the role. The output data must be correctly formatted json registered
+# in a variable that must be added to the "Format and filter user data" task below.
+
+# Uncomment if you want to use the example local users database.
+#
+## Retreive already correctly formated json users data from local file
+#- name: Retreive local users data
+#  retreive_local_users:
+#  register: local_users
+#  tags:
+#    - all_portals
+#    - local_portal
+#- name: Debug | Print raw local users data
+#  ansible.builtin.copy:
+#    content: "{{ local_users.users }}"
+#    dest: "./local/local_users.debug.json"
+#  when: (local_users is defined)
+#  tags:
+#    - never
+#    - debug_retreive
+
+# Retreive users from the Mesonet portal and format the data with the correct json format
+- name: Retreive Mesonet user data
+  retreive_mesonet_users:
+    cluster_name: "{{ cluster_name }}"
+  register: mesonet_users
+  tags:
+    - all_portals
+    - mesonet_portal
+
+- name: Debug | Print raw Mesonet user data to file
+  ansible.builtin.copy:
+    content: "{{ mesonet_users.users }}"
+    dest: "./local/mesonet_users.debug.json"
+  when: (mesonet_users is defined)
+  tags:
+    - never
+    - debug_retreive
+
+# At this point each user object has at least one valid project
+
+# ------------------------------------------------------- #
+#  Format the users objects and extract projects objects  #
+# ------------------------------------------------------- #
+
+# Formats users json objects with corresponding or new uids (same for projects and gids)
+# and extracts a projects list from users projects
+- name: Format and filter user data
+  format_and_filter_users:
+    users: "{{ (local_users.users | default([])) + (mesonet_users.users | default([])) }}"
+    min_uid: "{{ min_uid }}"
+    max_uid: "{{ max_uid }}"
+    min_gid: "{{ min_gid }}"
+    max_gid: "{{ max_gid }}"
+    cluster_users_file: "{{ cluster_users_file }}"
+  register: users_and_projects
+  tags:
+    - debug_formated
+    - debug_filtered
+
+- name: Debug | Print full formated users data to file
+  ansible.builtin.copy:
+    content: "{\"users\":{{ users_and_projects.users }},\"projects\":{{ users_and_projects.projects }}}"
+    dest: "./local/users_and_projects.debug.json"
+  when: (users_and_projects is defined)
+  tags:
+    - never
+    - debug_formated
+
+# Fails if there is duplicate uid or gid, or if a user still has no login
+# Also prints a warning if the number of users is too high
+- name: Failsafe check
+  failsafe_check:
+    users: "{{users_and_projects.users}}"
+    projects: "{{users_and_projects.projects}}"
+  tags:
+    - debug_filtered
+
+# At this point each user object and project object is correctly formated and has a UNIX user and/or group id
+
+# ------------------------------------------ #
+#  Retreive data from portals and databases  #
+# ------------------------------------------ #
+
+- name: Remove users that don't need update
+  remove_already_propagated_users:
+    users: "{{users_and_projects.users}}"
+    already_deployed_users_file: "{{already_deployed_users_file}}"
+  register: users_to_update
+  tags:
+    - debug_filtered
+
+- name: Debug | Print filtered formated users data to file
+  ansible.builtin.copy:
+    content: "{\"users\":{{ users_to_update.users }},\"projects\":{{ users_and_projects.projects }}}"
+    dest: "./local/filtered_users.debug.json"
+  when: (users_and_projects is defined and users_to_update is defined)
+  tags:
+    - never
+    - debug_filtered
+
+# At this point only users that need updating or verification are in the users_to_update list

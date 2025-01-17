@@ -1,0 +1,78 @@
+
+- name: Create groups on ldap
+  community.general.ldap_entry:
+    server_uri: "{{ ldap_server_uri }}"
+    bind_dn: "{{ ldap_bind_dn }}"
+    bind_pw: "{{ ldap_bind_pw }}"
+    dn: "cn={{ item.name }},ou=groups,{{ ldap_basedn }}"
+    objectClass:
+      - posixGroup
+    attributes:
+      gidNumber: "{{ item.gid }}"
+      cn: "{{ item.name }}"
+  loop: "{{ hostvars.localhost.users_and_projects.projects }}"
+
+- name: Create user groups on ldap
+  community.general.ldap_entry:
+    server_uri: "{{ ldap_server_uri }}"
+    bind_dn: "{{ ldap_bind_dn }}"
+    bind_pw: "{{ ldap_bind_pw }}"
+    dn: "cn={{ item.username }},ou=groups,{{ ldap_basedn }}"
+    objectClass:
+      - posixGroup
+    attributes:
+      gidNumber: "{{ item.uid }}"
+      cn: "{{ item.username }}"
+  loop: "{{ hostvars.localhost.users_to_update.users }}"
+
+- name: Create users on ldap
+  community.general.ldap_entry:
+    server_uri: "{{ ldap_server_uri }}"
+    bind_dn: "{{ ldap_bind_dn }}"
+    bind_pw: "{{ ldap_bind_pw }}"
+    dn: "cn={{ item.username }},ou=people,{{ ldap_basedn }}"
+    objectClass:
+      - posixAccount
+      - shadowAccount
+      - ldapPublicKey
+    attributes:
+      uid: "{{ item.username }}"
+      uidNumber: "{{ item.uid }}"
+      gidNumber: "{{ item.uid }}"
+      homeDirectory: "/home/{{ item.username }}"
+      loginShell: "/usr/bin/bash"
+      cn: "{{ item.username }}"
+      #userPassword: ""
+      #shadowLastChange: ""
+      #shadowMin: ""
+      #shadowMax: ""
+      #shadowWarning: ""
+      #shadowInactive: ""
+      shadowExpire: 1
+      sshPublicKey: ""
+  loop: "{{ hostvars.localhost.users_to_update.users }}"
+
+- name: Configure groups members on ldap
+  community.general.ldap_attrs:
+    server_uri: "{{ ldap_server_uri }}"
+    bind_dn: "{{ ldap_bind_dn }}"
+    bind_pw: "{{ ldap_bind_pw }}"
+    dn: "cn={{ item.name }},ou=groups,{{ ldap_basedn }}"
+    attributes:
+      memberUid: "{{ item.usernames }}"
+    state: exact
+  loop: "{{ hostvars.localhost.users_and_projects.projects }}"
+
+- name: Configure users keys on ldap
+  community.general.ldap_attrs:
+    server_uri: "{{ ldap_server_uri }}"
+    bind_dn: "{{ ldap_bind_dn }}"
+    bind_pw: "{{ ldap_bind_pw }}"
+    dn: "cn={{ item.username }},ou=people,{{ ldap_basedn }}"
+    attributes:
+      userPassword: "{{ item.password if item.password is not none else [] }}"
+      shadowExpire: "{{ 1 if item.delete else [] }}"
+      sshPublicKey: "{{ '' if item.delete else (item.sshkeys | selectattr('rvk','false') | map(attribute='pub') | zip(item.sshkeys | selectattr('rvk','false') | map(attribute='name')) | map('join',' ')) | list }}"
+    state: exact
+  loop: "{{ hostvars.localhost.users_to_update.users }}"
+

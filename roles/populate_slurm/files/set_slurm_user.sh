@@ -28,7 +28,8 @@ shift
 
 if [[ $(sacctmgr --noheader --parsable2 list associations account=default user=$user) == '' ]]
 then
-	sacctmgr --immediate add user name=$user account=default adminlevel=none defaultaccount=default
+	sacctmgr --immediate add user name=$user account=default adminlevel=none defaultaccount=default &>/dev/null
+	echo "Created user ${user}."
 fi
 
 if [[ $# -gt 0 ]]
@@ -37,11 +38,13 @@ then
 	do
 		if [[ $(sacctmgr --noheader --parsable2 list associations account=$project) == '' ]]
 		then
-			sacctmgr --immediate add account name=$project parent=projects
+			sacctmgr --immediate add account name=$project parent=projects &>/dev/null
+			echo "Created account ${project}."
 		fi
 		if [[ $(sacctmgr --noheader --parsable2 list associations account=$project user=$user) == '' ]]
 		then
-			sacctmgr --immediate add user name=$user account=$project adminlevel=none
+			sacctmgr --immediate add user name=$user account=$project adminlevel=none &>/dev/null
+			echo "Created association (${project},${user},${partition})."
 		fi
 #		if [[ $(sacctmgr --noheader --parsable2 list user name=$user | cut -d'|' -f2) == 'default' ]]
 #		then

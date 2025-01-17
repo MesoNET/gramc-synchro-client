@@ -1,0 +1,36 @@
+
+- name: Create groups on nodes
+  ansible.builtin.group:
+    name: "{{ item.name }}"
+    gid: "{{ item.gid }}"
+  loop: "{{ hostvars.localhost.users_and_projects.projects }}"
+
+- name: Create user groups on nodes
+  ansible.builtin.group:
+    name: "{{ item.username }}"
+    gid: "{{ item.uid }}"
+  loop: "{{ hostvars.localhost.users_to_update.users }}"
+
+- name: Create users on nodes
+  ansible.builtin.user:
+    name: "{{ item.username }}"
+    uid: "{{ item.uid }}"
+    password: "{{ item.password if item.password is not none and inventory_hostname in groups.logins else '*' }}"
+    update_password: "{{ 'always' if item.password is not none and inventory_hostname in groups.logins else 'on_create' }}"
+    password_lock: "{{ item.delete if inventory_hostname in groups.logins else true }}"
+    expires: "{{ 1 if item.delete else -1 }}"
+    group: "{{ item.username }}"
+    groups: "{{ item.projects | map(attribute='name') | list }}"
+    append: "{{ no_remove_from_groups }}"
+    create_home: false
+    home: "{{ home_dir }}/{{ item.username }}"
+  loop: "{{ hostvars.localhost.users_to_update.users }}"
+
+- name: Remove authorized_keys file if user blocked
+  ansible.builtin.command:
+    cmd: "mv --force authorized_keys authorized_keys.locked"
+    chdir: "{{ home_dir }}/{{ item.username }}/.ssh/"
+    removes: "{{ home_dir }}/{{ item.username }}/.ssh/authorized_keys"
+  when: item.delete
+  loop: "{{ hostvars.localhost.users_to_update.users }}"
+

@@ -1,0 +1,21 @@
+
+- name: Send user validation to Mesonet portal
+  send_user_validation_mesonet:
+    user: "{{ item.item }}"
+    cluster_name: "{{ cluster_name }}"
+  loop: "{{ hostvars.localhost.slurm_users.results }}"
+  when:
+    - item.item.portal == 'mesonet'
+    - item.item.report
+    - ((not item.failed) if item.failed is defined else true)
+
+- name: Send key validation to mesonet portal
+  send_key_validation_mesonet:
+    user: "{{ item.item.0 }}"
+    cluster_name: "{{ cluster_name }}"
+  loop: "{{ hostvars.localhost.added_keys.results }}"
+  when:
+    - item.item.0.portal == 'mesonet'
+    - item.item.1.report
+    - ((not item.failed) if item.failed is defined else true)
+

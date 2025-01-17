@@ -1,0 +1,8 @@
+
+- name: Set Slurm users
+  slurm_user:
+    username: "{{ item.username }}"
+    accounts: "{{ item.projects | map(attribute='name') }}"
+  loop: "{{ hostvars.localhost.users_to_update.users }}"
+  register: slurm_users
+

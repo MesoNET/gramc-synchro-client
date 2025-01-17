@@ -1,0 +1,80 @@
+    - name: Create project dir
+      ansible.builtin.file:
+        path: "{{ projects_dir }}/{{ item.name }}/"
+        owner: "nobody"
+        group: "{{ item.name }}"
+        mode: "2770"
+        state: directory
+      loop: "{{ hostvars.localhost.users_and_projects.projects }}"
+
+    - name: Copy skel directory
+      ansible.builtin.copy:
+        src: "{{ skel_dir }}/"
+        dest: "{{ home_dir }}/{{ item.username }}/"
+        owner: "{{ item.username }}"
+        group: "{{ item.username }}"
+        mode: "600"
+        directory_mode: "700"
+        force: false
+      loop: "{{ hostvars.localhost.users_to_update.users }}"
+      register: home_created
+
+    - name: Configure home at creation
+      block:
+
+        - name: Create home ssh dir
+          ansible.builtin.file:
+            path: "{{ home_dir }}/{{ item.username }}/.ssh/"
+            owner: "{{ item.username }}"
+            group: "{{ item.username }}"
+            mode: "700"
+            state: directory
+          loop: "{{ hostvars.localhost.users_to_update.users }}"
+
+        - name: Generate cluster ssh key
+          community.crypto.openssh_keypair:
+            path: "{{ home_dir }}/{{ item.username }}/.ssh/id_ed25519"
+            type: ed25519
+            owner: "{{ item.username }}"
+            group: "{{ item.username }}"
+            mode: "600"
+            comment: "Auto-generated key to connect to cluster nodes"
+          loop: "{{ hostvars.localhost.users_to_update.users }}"
+          failed_when: false
+          ignore_errors: true
+          register: keys_creation
+
+        - name: Add the generated ssh key as authorized
+          ansible.posix.authorized_key:
+            user: "{{ item.item.username }}"
+            key: "{{ item.public_key }}"
+            comment: "Public key to connect from cluster nodes"
+            manage_dir: false
+          loop: "{{ keys_creation.results }}"
+          when: item.changed
+
+      when: home_created.changed
+
+    - name: Add the portals ssh keys
+      ansible.posix.authorized_key:
+        user: "{{ item.0.username }}"
+        key: "{{ item.1.pub }} {{ item.1.name }}"
+        manage_dir: false
+      loop: "{{ hostvars.localhost.users_to_update.users | subelements('sshkeys') }}"
+      when: not item.1.rvk and not item.0.delete
+      failed_when: false
+      ignore_errors: true
+      register: added_keys
+
+    - name: Remove the revoked portals ssh keys
+      ansible.posix.authorized_key:
+        user: "{{ item.0.username }}"
+        key: "{{ item.1.pub }}"
+        manage_dir: false
+        state: absent
+      loop: "{{ hostvars.localhost.users_to_update.users | subelements('sshkeys') }}"
+      #no_log: true
+      when: item.1.rvk or item.0.delete
+      failed_when: false
+      register: removed_keys
+
