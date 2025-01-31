@@ -14,6 +14,9 @@ Ce client de synchronisation est un ensemble de scripts construits autour de Ans
     - Pour changer ce comportement, il faut changer la fonction `get_new_username` du fichier `roles/retreive_portals_data/library/format_and_filter_users.py`
 - Ce client garde une association des uid locaux avec les id des portails distants, par défaut dans le fichier `./local/usersdata.csv`
 - Les utilisateurs sans projet actifs sont bloqués via les valeurs du fichier `/etc/shadow` et leurs fichier `authorized_keys` est changé en `authorized_keys.locked` pour empêcher la connexion
+- **IMPORTANT :** Le script risque de ne pas arriver à son terme si un ou plusieurs nœuds sont injoignables ou bloquants
+    - Pour contourner ce problème, il faut préciser l'option `--limit='localhost:all:!nœudbloqué1'` (pour plusieurs nœuds : `localhost:all:!nœudbloqué1:!nœudbloqué2'`, remplacer `nœudbloquéX` par les nœuds injoignables) pour que le script ne tente pas de déployer les utilisateurs dessus
+    - Après avoir utilisé le script en ignorant des nœuds, il peut être nécessaire de le relancer après avoir supprimé le fichier `./local/sync_users_resfile.json`, pour qu'il fasse un redéploiement complet (Suivant le nombre d'utilisateurs, cela peut prendre beaucoup de temps)
 - **IMPORTANT :** Ce client défini précisémment les groupes des utilisateurs gérés, **ils sont donc automatiquement retirés de tout autre groupe**
     - Pour changer ce comportement, mettre la variable `no_remove_from_groups` dans `gramc_synchro_client.ansible.yaml` à `true`, il faudra alors retirer manuellement des groupes les utilisateurs qui ne sont plus dans les projets
 
@@ -53,7 +56,7 @@ Ce que ce client fait
     2. Ce client crée automatiquement les clés ssh pour que l'utilisateur puisse se connecter entre les nœuds du cluster
     3. Ce client ajoute automatiquement les clés ssh publiques du portail dans `.ssh/authorized_keys` et en retire les clés révoquées
 4. Ce client crée les utilisateurs et projets dans la base de données Slurm
-    1. **BUG À CORRIGER :** Ce client ne retire pas les associations Slurm utilisateur/account qui n'est plus dans le projet correspondant
+    1. **BUG À CORRIGER :** Ce client ne retire pas les associations Slurm utilisateur/account qui ne sont plus dans le projet correspondant
         1. Pour une correction temporaire, modifier le fichier `roles/populate_slurm/files/set_slurm_user.sh`
 5. Ce client envoie finalement les confirmations de créations aux portails
 
