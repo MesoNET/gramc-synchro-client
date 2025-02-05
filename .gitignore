@@ -1,0 +1,6 @@
+local/log/
+local/sync_users_resfile.json
+local/usersdata.csv
+*.lock
+*.bak
+*.debug.json
