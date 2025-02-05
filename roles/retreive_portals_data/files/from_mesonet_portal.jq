@@ -26,7 +26,7 @@
         "portal": "mesonet",
         "email": .email,
         "id": .idIndividu,
-        "username": .projets[0].nom,
+        "username": (.projets | map(select(.nom != "nologin")) | if has(0) then .[0].nom else "nologin" end),
         "preferred": null,
 	"password": null,
         "report": (.projets | any(.login and .nom == "nologin")),
