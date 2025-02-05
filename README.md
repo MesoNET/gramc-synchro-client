@@ -43,7 +43,9 @@ Installation
 4. Adapter les rôles à votre cas d'utilisation, par exemple changer comment les dossiers des projets sont générés dans `roles/users_folders/tasks/main.yaml`
 5. Vérifier que la liste d'utilisateurs récupérée est correcte avec les tags `all_portals,debug_filtered`
 6. Lancer la recette ansible pour vérifier son bon fonctionnement
-7. Éventuellement, ajouter `gramc_synchro_client.sh` au cron
+7. Éventuellement :
+    1. Modifier le contenu de `gramc_synchro_client.sh` pour l'adapter à votre cluster
+    2. Ajouter `gramc_synchro_client.sh` au cron
 
 Ce que ce client fait
 ---------------------
