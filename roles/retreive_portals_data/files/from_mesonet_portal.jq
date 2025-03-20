@@ -30,7 +30,7 @@
         "preferred": null,
 	"password": null,
         "report": (.projets | any(.login and .nom == "nologin")),
-        "delete": (.projets | any(.login | not)),
+        "delete": (.projets | any(.login) | not),
         "projects":
         ([
             .projets[] |
