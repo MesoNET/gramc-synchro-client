@@ -145,7 +145,10 @@ def init_default_uid(min_uid, max_uid, cluster_users_file):
 
 def get_new_username(email, preferred):
     if preferred is not None and len(preferred) > 3:
-        basename = preferred.lower()
+        if re.match(r'^[a-z][a-z0-9_]{5,31}$', preferred.lower()):
+            basename = preferred.lower()
+        else:
+            return None
     else:
         names = re.sub(r'(@.*)|([^a-z.])', '', email.lower()).split('.')
         if len(names) == 0:

@@ -3,6 +3,8 @@ Client de synchronisation des utilisateurs avec le portail Gramc pour Mesonet
 
 **ATTENTION :** Ce projet est techniquement utilisable en modifiant certains fichiers, mais est toujours un travail en cours et non utilisable sans modification.
 
+**ATTENTION :** Cette dernière version ajoute un filtrage des « logins préférés ». Si vous les utilisez, penser à modifier la ligne 148 du fichier `roles/retreive_portals_data/library/format_and_filter_users.py` pour l'adapter à vos besoins.
+
 Description
 -----------
 
