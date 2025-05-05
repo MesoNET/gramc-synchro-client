@@ -76,7 +76,7 @@ def retreive_data(cluster_name):
             headers={'content-type': 'application/json'}
         ).json()
     )
-    with tempfile.NameTemporaryFile() as tmp_sshkeys_gramc_file:
+    with tempfile.NamedTemporaryFile() as tmp_sshkeys_gramc_file:
         with open(tmp_sshkeys_gramc_file.name, 'w') as f:
             f.write(
                 json.dumps(
