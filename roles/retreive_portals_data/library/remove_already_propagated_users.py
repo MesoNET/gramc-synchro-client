@@ -76,10 +76,7 @@ def run_module():
     module.exit_json(**result)
 
 
-def filter_users(users, projects):
-    users_hashes_file = './local/users_hashes.csv'
-    projects_hashes_file = './local/projects_hashes.csv'
-
+def filter_users(users, projects, users_hashes_file, projects_hashes_file):
     if pathlib.Path(users_hashes_file).is_file():
         with open(users_hashes_file, 'r') as f:
             for line in f:
