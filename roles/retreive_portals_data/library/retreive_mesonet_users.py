@@ -41,6 +41,7 @@ import traceback
 import json
 import subprocess
 import requests
+import tempfile
 
 def run_module():
     module_args = dict(
@@ -75,24 +76,27 @@ def retreive_data(cluster_name):
             headers={'content-type': 'application/json'}
         ).json()
     )
-    sshkeys_gramc_json = json.dumps(
-        requests.post(
-            'https://acces.mesonet.fr/gramc-meso/adminux/clessh/get',
-            data=json.dumps({}),
-            headers={'content-type': 'application/json'}
-        ).json()
-    )
-    jqresult_gramc = subprocess.run(
-        [
-            'jq',
-            '--compact-output',
-            '--from-file', 'roles/retreive_portals_data/files/from_mesonet_portal.jq',
-            '--arg', 'cluster_name', cluster_name,
-            '--argjson', 'sshkeys',
-            sshkeys_gramc_json
-        ],
-        input=users_gramc_json.encode('utf-8'), stdout=subprocess.PIPE
-    )
+    with tempfile.NameTemporaryFile() as tmp_sshkeys_gramc_file:
+        with open(tmp_sshkeys_gramc_file.name, 'w') as f:
+            f.write(
+                json.dumps(
+                    requests.post(
+                        'https://acces.mesonet.fr/gramc-meso/adminux/clessh/get',
+                        data=json.dumps({}),
+                        headers={'content-type': 'application/json'}
+                    ).json()
+                )
+            )
+        jqresult_gramc = subprocess.run(
+            [
+                'jq',
+                '--compact-output',
+                '--from-file', 'roles/retreive_portals_data/files/from_mesonet_portal.jq',
+                '--arg', 'cluster_name', cluster_name,
+                '--slurpfile', 'sshkeys', tmp_sshkeys_gramc_file.name
+            ],
+            input=users_gramc_json.encode('utf-8'), stdout=subprocess.PIPE
+        )
     jqresult_gramc.check_returncode()
     users_gramc = json.loads(jqresult_gramc.stdout)
     return users_gramc

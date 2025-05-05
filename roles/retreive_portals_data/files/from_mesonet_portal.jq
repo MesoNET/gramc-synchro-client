@@ -18,7 +18,7 @@
     ] |
 
     # Combining users list (from input) and sshkeys list (from variable)
-    . + [$sshkeys | group_by(.idindividu) | .[] | { "idIndividu": .[0].idindividu, "sshkeys": . }] |
+    . + [$sshkeys[0] | group_by(.idindividu) | .[] | { "idIndividu": .[0].idindividu, "sshkeys": . }] |
         group_by(.idIndividu) | .[] | add | select(has("email")) |
 
     # Formatting the actual users objects
