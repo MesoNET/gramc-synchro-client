@@ -18,7 +18,7 @@ Ce client de synchronisation est un ensemble de scripts construits autour de Ans
 - Les utilisateurs sans projet actifs sont bloqués via les valeurs du fichier `/etc/shadow` et leurs fichier `authorized_keys` est changé en `authorized_keys.locked` pour empêcher la connexion
 - **IMPORTANT :** Le script risque de ne pas arriver à son terme si un ou plusieurs nœuds sont injoignables ou bloquants
     - Pour contourner ce problème, il faut préciser l'option `--limit='localhost:all:!nœudbloqué1'` (pour plusieurs nœuds : `localhost:all:!nœudbloqué1:!nœudbloqué2'`, remplacer `nœudbloquéX` par les nœuds injoignables) pour que le script ne tente pas de déployer les utilisateurs dessus
-    - Après avoir utilisé le script en ignorant des nœuds, il peut être nécessaire de le relancer après avoir supprimé le fichier `./local/sync_users_resfile.json`, pour qu'il fasse un redéploiement complet (Suivant le nombre d'utilisateurs, cela peut prendre beaucoup de temps)
+    - Après avoir utilisé le script en ignorant des nœuds, il peut être nécessaire de le relancer après avoir supprimé les fichiers `./local/users_hashes.csv` et `./local/projects_hashes.csv` (des variables `already_deployed_users_file` et `already_deployed_projects_file` du playbook principal), pour qu'il fasse un redéploiement complet (Suivant le nombre d'utilisateurs, cela peut prendre beaucoup de temps)
 - **IMPORTANT :** Ce client défini précisémment les groupes des utilisateurs gérés, **ils sont donc automatiquement retirés de tout autre groupe**
     - Pour changer ce comportement, mettre la variable `no_remove_from_groups` dans `gramc_synchro_client.ansible.yaml` à `true`, il faudra alors retirer manuellement des groupes les utilisateurs qui ne sont plus dans les projets
 
