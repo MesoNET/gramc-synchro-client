@@ -70,6 +70,7 @@ import sys
 import re
 import json
 import subprocess
+import hashlib
 
 
 def run_module():
@@ -295,6 +296,12 @@ def filter_users(users, min_uid, max_uid, min_gid, max_gid, cluster_users_file):
     jqresult_projects.check_returncode()
 
     projects = json.loads(jqresult_projects.stdout)
+
+    for user in users:
+        user["hash"] = hashlib.sha256(json.dumps(user).encode()).hexdigest()
+    for project in projects:
+        project["hash"] = hashlib.sha256(json.dumps(project).encode()).hexdigest()
+
     return users, projects
 
 

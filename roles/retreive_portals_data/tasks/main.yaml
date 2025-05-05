@@ -90,16 +90,18 @@
 - name: Remove users that don't need update
   remove_already_propagated_users:
     users: "{{users_and_projects.users}}"
+    projects: "{{users_and_projects.project}}"
     already_deployed_users_file: "{{already_deployed_users_file}}"
+    already_deployed_projects_file: "{{already_deployed_projects_file}}"
   register: users_to_update
   tags:
     - debug_filtered
 
 - name: Debug | Print filtered formated users data to file
   ansible.builtin.copy:
-    content: "{\"users\":{{ users_to_update.users }},\"projects\":{{ users_and_projects.projects }}}"
+    content: "{\"users\":{{ users_and_projects_to_update.users }},\"projects\":{{ users_and_projects_to_update.projects }}}"
     dest: "./local/filtered_users.debug.json"
-  when: (users_and_projects is defined and users_to_update is defined)
+  when: (users_and_projects is defined and users_and_projects_to_update is defined)
   tags:
     - never
     - debug_filtered

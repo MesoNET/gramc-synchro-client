@@ -48,11 +48,15 @@ import json
 def run_module():
     module_args = dict(
         users=dict(type='list', required=True),
-        already_deployed_users_file=dict(type='str', required=True)
+        projects=dict(type='list', required=True),
+        already_deployed_users_file=dict(type='str', required=True),
+        already_deployed_projects_file=dict(type='str', required=True)
+
     )
     result = dict(
         changed=False,
-        users=[]
+        users=[],
+        projects=[]
     )
 
     module = AnsibleModule(
@@ -64,29 +68,36 @@ def run_module():
         module.exit_json(**result)
 
     try:
-        result['users'] = filter_users(module.params['users'], module.params['already_deployed_users_file'])
+        result['users'], result['projects'] = filter_users(module.params['users'], module.params['projects'],
+                                                           module.params['already_deployed_users_file'], module.params['already_deployed_projects_file'])
     except:
         module.fail_json(msg=traceback.format_exc(), **result)
 
     module.exit_json(**result)
 
 
-def filter_users(users, already_deployed_users_file):
-    resfile = already_deployed_users_file
-    if pathlib.Path(resfile).is_file():
-        with open(resfile, 'r') as f:
-            oldres = json.load(f)
-    else:
-        oldres = json.loads('{"users":[], "projects":[]}')
+def filter_users(users, projects):
+    users_hashes_file = './local/users_hashes.csv'
+    projects_hashes_file = './local/projects_hashes.csv'
 
-    users_to_remove = []
-    for user in users:
-        if user in oldres["users"] and not user["report"] and not any(k["report"] for k in user["sshkeys"]):
-            users_to_remove.append(user)
+    if pathlib.Path(users_hashes_file).is_file():
+        with open(users_hashes_file, 'r') as f:
+            for line in f:
+                [portal, user_id, user_hash] = line.split(':')
+                for user in users:
+                    if user["report"] or user["portal"] != portal or str(user["id"]) != user_id or user["hash"] != user_hash:
+                        users.remove(user)
+                        break
+    if pathlib.Path(projects_hashes_file).is_file():
+        with open(projects_hashes_file, 'r') as f:
+            for line in f:
+                [portal, project_name, project_hash] = line.split(':')
+                for project in projects:
+                    if project["report"] or project["name"] != project_name or project["hash"] != project_hash:
+                        projects.remove(project)
+                        break
 
-    for user in users_to_remove:
-        users.remove(user)
-    return users
+    return users, projects
 
 
 def main():

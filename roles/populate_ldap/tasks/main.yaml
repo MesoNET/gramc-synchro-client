@@ -10,7 +10,7 @@
     attributes:
       gidNumber: "{{ item.gid }}"
       cn: "{{ item.name }}"
-  loop: "{{ hostvars.localhost.users_and_projects.projects }}"
+  loop: "{{ hostvars.localhost.users_and_projects_to_update.projects }}"
 
 - name: Create user groups on ldap
   community.general.ldap_entry:
@@ -23,7 +23,7 @@
     attributes:
       gidNumber: "{{ item.uid }}"
       cn: "{{ item.username }}"
-  loop: "{{ hostvars.localhost.users_to_update.users }}"
+  loop: "{{ hostvars.localhost.users_and_projects_to_update.users }}"
 
 - name: Create users on ldap
   community.general.ldap_entry:
@@ -50,7 +50,7 @@
       #shadowInactive: ""
       shadowExpire: 1
       sshPublicKey: ""
-  loop: "{{ hostvars.localhost.users_to_update.users }}"
+  loop: "{{ hostvars.localhost.users_and_projects_to_update.users }}"
 
 - name: Configure groups members on ldap
   community.general.ldap_attrs:
@@ -61,7 +61,7 @@
     attributes:
       memberUid: "{{ item.usernames }}"
     state: exact
-  loop: "{{ hostvars.localhost.users_and_projects.projects }}"
+  loop: "{{ hostvars.localhost.users_and_projects_to_update.projects }}"
 
 - name: Configure users keys on ldap
   community.general.ldap_attrs:
@@ -74,5 +74,5 @@
       shadowExpire: "{{ 1 if item.delete else [] }}"
       sshPublicKey: "{{ '' if item.delete else (item.sshkeys | selectattr('rvk','false') | map(attribute='pub') | zip(item.sshkeys | selectattr('rvk','false') | map(attribute='name')) | map('join',' ')) | list }}"
     state: exact
-  loop: "{{ hostvars.localhost.users_to_update.users }}"
+  loop: "{{ hostvars.localhost.users_and_projects_to_update.users }}"
 

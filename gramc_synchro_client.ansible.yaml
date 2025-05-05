@@ -10,7 +10,8 @@
         min_gid: 200000
         max_gid: 299999
         cluster_users_file: "./local/usersdata.csv"
-        already_deployed_users_file: "./local/sync_users_resfile.json"
+        already_deployed_users_file: "./local/users_hashes.csv"
+        already_deployed_projects_file: "./local/projects_hashes.csv"
         cluster_name: Juliet
 #WIP
 #    - role: populate_ldap
@@ -59,6 +60,16 @@
   connection: local
   tasks:
     - name: Save validated users
-      ansible.builtin.copy:
-        content: "{\"users\":{{ hostvars.localhost.users_and_projects.users }},\"projects\":{{ hostvars.localhost.users_and_projects.projects }}}"
-        dest: "./local/sync_users_resfile.json"
+      ansible.builtin.lineinfile:
+        regexp: "^{{ item.portal }}:{{ item.id }}:.*$"
+        line: "{{ item.portal }}:{{ item.id }}:{{ item.hash }}"
+        path: "./local/users_hashes.csv"
+        create: true
+      loop: "{{ hostvars.localhost.users_and_projects.users }}"
+    - name: Save validated projects
+      ansible.builtin.lineinfile:
+        regexp: "^NULL:{{ item.name }}:.*$"
+        line: "NULL:{{ item.name }}:{{ item.hash }}"
+        path: "./local/projects_hashes.csv"
+        create: true
+      loop: "{{ hostvars.localhost.users_and_projects.projects }}"

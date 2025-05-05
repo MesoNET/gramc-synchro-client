@@ -9,7 +9,7 @@
   ansible.builtin.group:
     name: "{{ item.username }}"
     gid: "{{ item.uid }}"
-  loop: "{{ hostvars.localhost.users_to_update.users }}"
+  loop: "{{ hostvars.localhost.users_and_projects_to_update.users }}"
 
 - name: Create users on nodes
   ansible.builtin.user:
@@ -24,7 +24,7 @@
     append: "{{ no_remove_from_groups }}"
     create_home: false
     home: "{{ home_dir }}/{{ item.username }}"
-  loop: "{{ hostvars.localhost.users_to_update.users }}"
+  loop: "{{ hostvars.localhost.users_and_projects_to_update.users }}"
 
 - name: Remove authorized_keys file if user blocked
   ansible.builtin.command:
@@ -32,5 +32,5 @@
     chdir: "{{ home_dir }}/{{ item.username }}/.ssh/"
     removes: "{{ home_dir }}/{{ item.username }}/.ssh/authorized_keys"
   when: item.delete
-  loop: "{{ hostvars.localhost.users_to_update.users }}"
+  loop: "{{ hostvars.localhost.users_and_projects_to_update.users }}"
 
