@@ -13,23 +13,23 @@
         already_deployed_users_file: "./local/users_hashes.csv"
         already_deployed_projects_file: "./local/projects_hashes.csv"
         cluster_name: Juliet
-#WIP
-#    - role: populate_ldap
-#      vars:
-#        server_uri: ""
-#        bind_dn: ""
-#        bind_pw: "{{ ldap_bind_pw }}"
-#        base_dn: ""
-#        groups_ou: "ou=groups"
-#        users_ou: "ou=users"
-#      tags:
-#        - never
-#        - ldap_users
+
+    # Crée les utilisateurs et projets dans le ldap
+    # Décommenter le bloc ci-dessous pour utiliser le LDAP. Ne pas oublier d'aussi commenter le bloc créant les utilisateurs sur les nœuds.
+    #- role: populate_ldap
+    #  vars:
+    #    server_uri: ""
+    #    bind_dn: ""
+    #    bind_pw: "{{ ldap_bind_pw }}"
+    #    base_dn: ""
+    #    groups_ou: "ou=groups"
+    #    users_ou: "ou=users"
 
 - hosts: logins,computes
   gather_facts: false
   roles:
     # Crée les utilisateurs et projets sur tous les nœuds
+    # Commenter ce bloc en cas d'utilisation du LDAP pour éviter de créer les utilisateurs sur les nœuds et le LDAP.
     - role: populate_nodes
       vars:
         home_dir: '/home'

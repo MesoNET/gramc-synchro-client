@@ -93,6 +93,11 @@ Ajouter un autre portail
 1. Créer un nouveau module dans le rôle `retreive_portals_data` renvoyant la liste des utilisateurs associés à leurs projets et clés correctement formatée
 2. Ajouter au fichier `roles/retreive_portals_data/tasks/main.yaml` les tâches nécessaires pour récupérer la liste, et modifier la tâche `filter_and_format_data` pour l'y ajouter
 
+Gestion des utilisateurs via le LDAP
+------------------------------------
+
+Il est possible de créer les utilisateurs et groupes représentant les projets sur un LDAP plutôt que directement sur chaque nœud. Pour cela, il faut décommenter le bloc responsable de la création des utilisateurs et groupes sur le LDAP et commenter le play créant les utilisateurs sur les nœuds, puis configurer les variables utilisées par le rôle faisant les créations sur le LDAP. Il est possible de changer les fichiers du rôle pour personnaliser les détails de la création des utilisateurs et groupes sur le LDAP.
+
 À faire
 -------
 

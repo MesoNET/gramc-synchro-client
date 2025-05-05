@@ -4,7 +4,7 @@
     server_uri: "{{ ldap_server_uri }}"
     bind_dn: "{{ ldap_bind_dn }}"
     bind_pw: "{{ ldap_bind_pw }}"
-    dn: "cn={{ item.name }},ou=groups,{{ ldap_basedn }}"
+    dn: "cn={{ item.name }},{{ groups_ou }},{{ ldap_basedn }}"
     objectClass:
       - posixGroup
     attributes:
@@ -17,7 +17,7 @@
     server_uri: "{{ ldap_server_uri }}"
     bind_dn: "{{ ldap_bind_dn }}"
     bind_pw: "{{ ldap_bind_pw }}"
-    dn: "cn={{ item.username }},ou=groups,{{ ldap_basedn }}"
+    dn: "cn={{ item.username }},{{ groups_ou }},{{ ldap_basedn }}"
     objectClass:
       - posixGroup
     attributes:
@@ -30,8 +30,9 @@
     server_uri: "{{ ldap_server_uri }}"
     bind_dn: "{{ ldap_bind_dn }}"
     bind_pw: "{{ ldap_bind_pw }}"
-    dn: "cn={{ item.username }},ou=people,{{ ldap_basedn }}"
+    dn: "cn={{ item.username }},{{ users_ou }},{{ ldap_basedn }}"
     objectClass:
+      - inetOrgPerson
       - posixAccount
       - shadowAccount
       - ldapPublicKey
@@ -42,6 +43,8 @@
       homeDirectory: "/home/{{ item.username }}"
       loginShell: "/usr/bin/bash"
       cn: "{{ item.username }}"
+      sn: "{{ item.username }}"
+      mail: "{{ item.username }}"
       #userPassword: ""
       #shadowLastChange: ""
       #shadowMin: ""
@@ -57,7 +60,7 @@
     server_uri: "{{ ldap_server_uri }}"
     bind_dn: "{{ ldap_bind_dn }}"
     bind_pw: "{{ ldap_bind_pw }}"
-    dn: "cn={{ item.name }},ou=groups,{{ ldap_basedn }}"
+    dn: "cn={{ item.name }},{{ groups_ou }},{{ ldap_basedn }}"
     attributes:
       memberUid: "{{ item.usernames }}"
     state: exact
@@ -68,11 +71,11 @@
     server_uri: "{{ ldap_server_uri }}"
     bind_dn: "{{ ldap_bind_dn }}"
     bind_pw: "{{ ldap_bind_pw }}"
-    dn: "cn={{ item.username }},ou=people,{{ ldap_basedn }}"
+    dn: "cn={{ item.username }},{{ users_ou }},{{ ldap_basedn }}"
     attributes:
       userPassword: "{{ item.password if item.password is not none else [] }}"
       shadowExpire: "{{ 1 if item.delete else [] }}"
-      sshPublicKey: "{{ '' if item.delete else (item.sshkeys | selectattr('rvk','false') | map(attribute='pub') | zip(item.sshkeys | selectattr('rvk','false') | map(attribute='name')) | map('join',' ')) | list }}"
+      sshPublicKey: "{{ '' if item.delete or (item.sshkeys | selectattr('rvk','false') | length == 0) else (item.sshkeys | selectattr('rvk','false') | map(attribute='pub') | zip(item.sshkeys | selectattr('rvk','false') | map(attribute='name')) | map('join',' ') | list) }}"
     state: exact
   loop: "{{ hostvars.localhost.users_and_projects_to_update.users }}"
 
