@@ -15,7 +15,7 @@
     cluster_name: "{{ cluster_name }}"
   loop: "{{ hostvars.localhost.added_keys.results }}"
   when:
-    - item.item.portal == 'mesonet'
-    - item.item.report
+    - item.item.0.portal == 'mesonet'
+    - item.item.1.report
     - ((not item.failed) if item.failed is defined else true)
 
