@@ -38,7 +38,7 @@ Dépendances et contraintes
 Installation
 ------------
 
-1. Clonez le dépôt
+1. Clonez le dépôt (Il est conseillé de cloner l'une des versions released, plus stables)
 2. Configurez la liste des nœuds dans l'inventaire
 3. Configurez les variables de `gramc_synchro_client.ansible.yaml` pour les adapter à votre cluster
     1. Notamment, mettre le bon nom du cluster correspondant à celui dans la base de données de gramc
