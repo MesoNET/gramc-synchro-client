@@ -85,8 +85,6 @@ Configuration optionnelle mais recommandée
 Trucs & astuces (non testés)
 ----------------------------
 
-You can run the "gramc\_synchro\_client.py" script with some environment variables to have a custom "ansible.cfg" file and a custom ".netrc" file
-
 Le script python `exemple_gramc_conso.py` est un exemple de base de script pour l'automatisation de la récupération et du traitement des attributions de ressources par projet et du renvoi des valeurs de consommation de ressources des projets au portail gramc.
 
 - Custom ansible configuration file: "ANSIBLE\_CONFIG=$custom\_path"
