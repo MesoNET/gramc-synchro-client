@@ -16,6 +16,7 @@ def do_value(account, value):
     dosomething = value
 
 def main():
+    resource = "MaRessource"
     # Partie 1 : Récupérer les valeurs attribuées aux projets
     changes_to_do = requests.get(
             'https://acces.mesonet.fr/gramc-meso/adminux/todo/get'
@@ -35,11 +36,11 @@ def main():
             data=json.dumps(
                 {
                     "projet": project,
-                    "ressource": "MaRessource"
+                    "ressource": resource
                 }),
             headers={'content-type': 'application/json'}
         )
-        print('Sent confirmation for consommation quota of project {}.'.format(project))
+        print('Sent confirmation for attribution quota of project {} for resource {}.'.format(project, resource))
 
     # Partie 2 : Renvoyer au portail les consommations des projets
     with open('gramc_attributions.csv', 'r') as f:
@@ -56,12 +57,12 @@ def main():
                 data=json.dumps(
                     {
                         "projet": project,
-                        "ressource": "MaRessource",
+                        "ressource": resource,
                         "conso": conso
                     }),
                 headers={'content-type': 'application/json'}
             )
-            print('Sent {} gpu hours for the project {}.'.format(gpu_hours, project))
+            print('Sent consomation value {} of project {} for resource {}.'.format(conso, project, resource))
 
 
 if __name__ == "__main__":
