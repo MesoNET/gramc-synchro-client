@@ -7,13 +7,13 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 ---
-module: retreive_romeo_users
+module: retreive_local_users
 
-short_description: Retrieve data from the romeo portal and format it with basic filtering.
+short_description: Retrieve data from the local portal and format it with basic filtering.
 
 version_added: "1.0.0"
 
-description: Retrieve data from the romeo portal and format it with basic filtering.
+description: Retrieve data from the local portal and format it with basic filtering.
 
 options:
 
@@ -24,8 +24,8 @@ author:
 EXAMPLES = r'''
 # Retreive users list
 - name: Retreive users and projects lists
-  retreive_romeo_users:
-  register: romeo_users
+  retreive_local_users:
+  register: local_users
 '''
 
 RETURN = r'''
