@@ -3,7 +3,11 @@ Client de synchronisation des utilisateurs avec le portail Gramc pour Mesonet
 
 **ATTENTION :** Ce projet est techniquement utilisable en modifiant certains fichiers, mais est toujours un travail en cours et non utilisable sans modification.
 
-**ATTENTION :** Cette dernière version ajoute un filtrage des « logins préférés ». Si vous les utilisez, penser à modifier la ligne 148 du fichier `roles/retreive_portals_data/library/format_and_filter_users.py` pour l'adapter à vos besoins.
+Changements récents notables
+----------------------------
+
+- Ajout d'un filtrage des « logins préférés ». Si vous les utilisez, penser à modifier la ligne 148 du fichier `roles/retreive_portals_data/library/format_and_filter_users.py` pour l'adapter à vos besoins.
+- Changement du fichier où sont stockées les données des utilisateurs déjà déployés de `local/sync_users_resfile.json` à `local/users_hashes.csv` et `local/projects_hashes.csv`.
 
 Description
 -----------
@@ -55,6 +59,7 @@ Ce que ce client fait
 1. Ce client commence par récupérer les données des portails, seuls certains fichiers dans le dossier du client de synchronisation sont modifiés
     1. Les uid et gid sont associés aux ids des utilisateurs des portails pendant cette étape mais aucun groupe ni utilisateur n'est créé sur le cluster
 2. Ce client se connecte sur chaque nœud pour y créer les utilisateurs et les groupes correspondant aux projets, et les associe, mais ne crée aucun dossier
+    1. En cas d'utilisation d'un LDAP, le script peut ne pas avoir à se connecter sur les nœuds.
 3. Ce client crée les dossiers utilisateurs et les dossiers des projets dans les dossiers indiqués
     1. Les dossiers des utilisateurs sont remplis avec le contenu de `/etc/skel`
     2. Ce client crée automatiquement les clés ssh pour que l'utilisateur puisse se connecter entre les nœuds du cluster
