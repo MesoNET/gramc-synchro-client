@@ -90,10 +90,10 @@
 - name: Remove users that don't need update
   remove_already_propagated_users:
     users: "{{users_and_projects.users}}"
-    projects: "{{users_and_projects.project}}"
+    projects: "{{users_and_projects.projects}}"
     already_deployed_users_file: "{{already_deployed_users_file}}"
     already_deployed_projects_file: "{{already_deployed_projects_file}}"
-  register: users_to_update
+  register: users_and_projects_to_update
   tags:
     - debug_filtered
 
