@@ -90,7 +90,7 @@ def filter_users(users, projects, users_hashes_file, projects_hashes_file):
             for line in f:
                 [portal, project_name, project_hash] = line.split(':')
                 for project in projects:
-                    if not project["report"] and project["name"] == project_name and project["hash"] == project_hash):
+                    if not project["report"] and project["name"] == project_name and project["hash"] == project_hash:
                         projects.remove(project)
                         break
 
