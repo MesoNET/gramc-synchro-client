@@ -82,7 +82,7 @@ def filter_users(users, projects, users_hashes_file, projects_hashes_file):
             for line in f:
                 [portal, user_id, user_hash] = line.split(':')
                 for user in users:
-                    if not user["report"] and user["portal"] == portal and str(user["id"]) == user_id and user["hash"] == user_hash:
+                    if not user["report"] and user["portal"] == portal and str(user["id"]) == user_id and user["hash"] == user_hash.rstrip():
                         users.remove(user)
                         break
     if pathlib.Path(projects_hashes_file).is_file():
@@ -90,7 +90,7 @@ def filter_users(users, projects, users_hashes_file, projects_hashes_file):
             for line in f:
                 [portal, project_name, project_hash] = line.split(':')
                 for project in projects:
-                    if not project["report"] and project["name"] == project_name and project["hash"] == project_hash:
+                    if not project["report"] and project["name"] == project_name and project["hash"] == project_hash.rstrip():
                         projects.remove(project)
                         break
 
